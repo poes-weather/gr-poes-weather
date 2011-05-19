@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<block>
+  <name>NOAA HRPT Deframer</name>
+  <key>poesweather_noaa_hrpt_deframer</key>
+  <category>POES Weather</category>
+  <import>import poesweather</import>
+  <make>poesweather.noaa_hrpt_deframer($sync_check)</make>
+
+  <param>
+    <name>Sync check</name>
+    <key>sync_check</key>
+    <value>True</value>
+    <type>bool</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>short</type>
+  </source>
+
+  <doc>
+NOAA POES HRPT Deframer block.
+
+Sync check: True, validate every frame sync. False, don't validate after sync is found.
+  </doc>
+
+</block>

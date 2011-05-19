@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<block>
+  <name>FY-1 HRPT Deframer</name>
+  <key>poesweather_fy1_hrpt_deframer</key>
+  <category>POES Weather</category>
+  <import>import poesweather</import>
+  <make>poesweather.fy1_hrpt_deframer($sync_check)</make>
+
+  <param>
+    <name>Sync check</name>
+    <key>sync_check</key>
+    <value>True</value>
+    <type>bool</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>short</type>
+  </source>
+
+  <doc>
+Feng-Yun 1 POES HRPT Deframer block.
+
+Sync check: True, validate every frame. False, don't validate after sync is found.
+  </doc>
+</block>
