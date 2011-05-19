@@ -19,27 +19,20 @@
 # Boston, MA 02110-1301, USA.
 # 
 
-This directory (and the resulting tarball) contains a build tree with
-examples, Makefiles, etc that demonstrate how to write signal
-processing blocks for the GNU Radio system.  This directory is
-intentionally distributed separately from the unified tarball of the
-rest of GNU Radio in order to avoid problems for people who have begun
-to write blocks with a modified copy of gr-howto-write-a-block.
-
-This package requires that gnuradio-core is already installed.  It
+This package requires that gnuradio-core is already installed. It
 also depends on some GNU Radio prerequisites, such as Boost and
 cppunit.
 
-To build the examples from the tarball use the normal recipe:
+High resolution (HRPT) weather satellite modules written by POES-Weather Ltd.
+Featuring:
+	
+	- all NOAA-(N)POES
+	- Feng Yun 1
+	- Meteor M N-1
 
-  $ ./configure
-  $ make
-  $ make check
+To build from git, you'll need to use this sequence.
 
-If you're building from git, you'll need to use this sequence, since
-git doesn't contain configure or the generated Makefiles.
-
-  Set pkgconfig environment if needed
+  Set pkgconfig environment, if needed
   $ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
 
   $ ./bootstrap
