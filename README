@@ -23,6 +23,8 @@ This package requires that gnuradio-core is already installed. It
 also depends on some GNU Radio prerequisites, such as Boost and
 cppunit.
 
+NOTICE: USRP1 traditional support only (not yet uhd)
+
 High resolution (HRPT) weather satellite modules written by POES-Weather Ltd.
 Featuring:
 	
