@@ -1,6 +1,61 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Dec 14 20:40:37 2010</timestamp>
+  <timestamp>Wed Jun 22 12:14:36 2011</timestamp>
+  <block>
+    <key>options</key>
+    <param>
+      <key>id</key>
+      <value>usrp_rx_fy1_hrpt</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>USRP Feng Yun 1 HRPT Receiver</value>
+    </param>
+    <param>
+      <key>author</key>
+      <value>POES Weather Ltd</value>
+    </param>
+    <param>
+      <key>description</key>
+      <value>Feng Yun 1 HRPT Receiver</value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>2000, 2000</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>wx_gui</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>Custom</value>
+    </param>
+    <param>
+      <key>run_options</key>
+      <value>prompt</value>
+    </param>
+    <param>
+      <key>run</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 10)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
   <block>
     <key>import</key>
     <param>
@@ -906,61 +961,6 @@
     </param>
   </block>
   <block>
-    <key>options</key>
-    <param>
-      <key>id</key>
-      <value>usrp_rx_fy1_hrpt</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>USRP Feng Yun 1 HRPT Receiver</value>
-    </param>
-    <param>
-      <key>author</key>
-      <value>POES Weather Ltd</value>
-    </param>
-    <param>
-      <key>description</key>
-      <value>Feng Yun 1 HRPT Receiver</value>
-    </param>
-    <param>
-      <key>window_size</key>
-      <value>2000, 2000</value>
-    </param>
-    <param>
-      <key>generate_options</key>
-      <value>wx_gui</value>
-    </param>
-    <param>
-      <key>category</key>
-      <value>Custom</value>
-    </param>
-    <param>
-      <key>run_options</key>
-      <value>prompt</value>
-    </param>
-    <param>
-      <key>run</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 10)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>variable</key>
     <param>
       <key>id</key>
@@ -1205,33 +1205,6 @@
     </param>
   </block>
   <block>
-    <key>poesweather_fy1_hrpt_decoder</key>
-    <param>
-      <key>id</key>
-      <value>poesweather_fy1_hrpt_decoder_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>verbose</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>output</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(635, 1657)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>virtual_source</key>
     <param>
       <key>id</key>
@@ -1377,33 +1350,6 @@
     <param>
       <key>_coordinate</key>
       <value>(637, 1050)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>gr_rms_xx</key>
-    <param>
-      <key>id</key>
-      <value>gr_rms_xx_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>alpha</key>
-      <value>0.2</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(637, 968)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1653,6 +1599,52 @@
     </param>
   </block>
   <block>
+    <key>gr_interleaved_short_to_complex</key>
+    <param>
+      <key>id</key>
+      <value>gr_interleaved_short_to_complex_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(341, 1018)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_rms_xx</key>
+    <param>
+      <key>id</key>
+      <value>gr_rms_xx_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>alpha</key>
+      <value>0.2</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(637, 968)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>wxgui_numbersink2</key>
     <param>
       <key>id</key>
@@ -1660,7 +1652,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>type</key>
@@ -1740,18 +1732,26 @@
     </param>
   </block>
   <block>
-    <key>gr_interleaved_short_to_complex</key>
+    <key>poesweather_fy1_hrpt_decoder</key>
     <param>
       <key>id</key>
-      <value>gr_interleaved_short_to_complex_0</value>
+      <value>poesweather_fy1_hrpt_decoder_0</value>
     </param>
     <param>
       <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>verbose</key>
       <value>True</value>
     </param>
     <param>
+      <key>output</key>
+      <value>False</value>
+    </param>
+    <param>
       <key>_coordinate</key>
-      <value>(341, 1018)</value>
+      <value>(635, 1657)</value>
     </param>
     <param>
       <key>_rotation</key>
