@@ -96,9 +96,13 @@ poesweather_mn1_hrpt_deframer::general_work(int noutput_items,
 	d_shifter = (d_shifter << 1) | bit; // MSB transmitted first
 	
         if (d_shifter == MN1_HRPT_FRAME_SYNC) {
-          out[j++] = (unsigned short) (MN1_HRPT_FRAME_SYNC << 16);
+          out[j++] = (unsigned short) (MN1_HRPT_FRAME_SYNC >> 16);
           out[j++] = (unsigned short) MN1_HRPT_FRAME_SYNC;
+          //out[j++] = (unsigned short) 0xcf1a;
+          //out[j++] = (unsigned short) 0x1dfc;
 	  enter_synced();
+	  fprintf(stderr, "M N1 Sync found: 0x%04X\n", d_shifter);
+
 	}
 	break;
 	

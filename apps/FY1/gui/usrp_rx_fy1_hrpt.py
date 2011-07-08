@@ -4,7 +4,7 @@
 # Title: USRP Feng Yun 1 HRPT Receiver
 # Author: POES Weather Ltd
 # Description: Feng Yun 1 HRPT Receiver
-# Generated: Wed Jun 22 12:14:37 2011
+# Generated: Fri Jul  8 13:52:29 2011
 ##################################################
 
 from gnuradio import eng_notation
@@ -114,7 +114,7 @@ class usrp_rx_fy1_hrpt(grc_wxgui.top_block_gui):
 			baseband_freq=0,
 			y_per_div=5,
 			y_divs=10,
-			ref_level=45,
+			ref_level=30,
 			ref_scale=2.0,
 			sample_rate=samp_rate,
 			fft_size=1024,
