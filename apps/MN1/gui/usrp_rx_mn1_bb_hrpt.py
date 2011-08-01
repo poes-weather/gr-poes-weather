@@ -4,7 +4,7 @@
 # Title: USRP Meteor M N1 HRPT Receiver
 # Author: POES Weather Ltd
 # Description: Meteor M N1 HRPT Receiver
-# Generated: Fri Jul  8 13:53:47 2011
+# Generated: Mon Aug  1 14:11:28 2011
 ##################################################
 
 from gnuradio import eng_notation
@@ -188,7 +188,6 @@ class usrp_rx_mn1_bb_hrpt(grc_wxgui.top_block_gui):
 		)
 		self.GridAdd(_pll_alpha_sizer, 2, 1, 1, 1)
 		self.pll = noaa.hrpt_pll_cf(pll_alpha, pll_alpha**2/4.0, max_carrier_offset)
-		self.gr_multiply_const_vxx_0 = gr.multiply_const_vff((-1, ))
 		self.gr_moving_average_xx_0 = gr.moving_average_ff(hs, 1.0/hs, 4000)
 		self.gr_interleaved_short_to_complex_0 = gr.interleaved_short_to_complex()
 		self.gr_file_sink_0_0 = gr.file_sink(gr.sizeof_short*1, "frames_outfile")
@@ -274,8 +273,7 @@ class usrp_rx_mn1_bb_hrpt(grc_wxgui.top_block_gui):
 		self.connect((self.gr_moving_average_xx_0, 0), (self.gr_clock_recovery_mm_xx_0, 0))
 		self.connect((self.gr_interleaved_short_to_complex_0, 0), (self.wxgui_fftsink2_0, 0))
 		self.connect((self.usrp_simple_source_x_0, 0), (self.gr_file_sink_0, 0))
-		self.connect((self.gr_clock_recovery_mm_xx_0, 0), (self.gr_multiply_const_vxx_0, 0))
-		self.connect((self.gr_multiply_const_vxx_0, 0), (self.gr_binary_slicer_fb_0, 0))
+		self.connect((self.gr_clock_recovery_mm_xx_0, 0), (self.gr_binary_slicer_fb_0, 0))
 
 	def get_side(self):
 		return self.side

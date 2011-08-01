@@ -4,7 +4,7 @@
 # Title: Meteor M N1 HRPT Baseband To Frames
 # Author: POES Weather Ltd
 # Description: Meteor M N1 HRPT Baseband To Frames
-# Generated: Fri Jul  8 13:53:45 2011
+# Generated: Mon Aug  1 14:11:40 2011
 ##################################################
 
 from gnuradio import eng_notation
@@ -24,7 +24,7 @@ import wx
 
 class mn1_hrpt_bb_to_frames(grc_wxgui.top_block_gui):
 
-	def __init__(self, decim=32, sync_check=False, frames_file=os.environ['HOME'] + '/METEOR-M-1.hrpt', satellite='METEOR-M-1', baseband_file=os.environ['HOME'] + '/data/2011-05-25T215242-METEOR-M-1.dat'):
+	def __init__(self, decim=32, sync_check=False, frames_file=os.environ['HOME'] + '/METEOR-M-1.hrpt', satellite='METEOR-M-1', baseband_file=os.environ['HOME'] + '/METEOR-M-1.dat'):
 		grc_wxgui.top_block_gui.__init__(self, title="Meteor M N1 HRPT Baseband To Frames")
 		_icon_path = "/usr/share/icons/hicolor/32x32/apps/gnuradio-grc.png"
 		self.SetIcon(wx.Icon(_icon_path, wx.BITMAP_TYPE_ANY))
@@ -390,7 +390,7 @@ if __name__ == '__main__':
 		help="Set Frames output filename [default=%default]")
 	parser.add_option("-S", "--satellite", dest="satellite", type="string", default='METEOR-M-1',
 		help="Set Satellite [default=%default]")
-	parser.add_option("-F", "--baseband-file", dest="baseband_file", type="string", default=os.environ['HOME'] + '/data/2011-05-25T215242-METEOR-M-1.dat',
+	parser.add_option("-F", "--baseband-file", dest="baseband_file", type="string", default=os.environ['HOME'] + '/METEOR-M-1.dat',
 		help="Set Baseband input filename [default=%default]")
 	(options, args) = parser.parse_args()
 	tb = mn1_hrpt_bb_to_frames(decim=options.decim, sync_check=options.sync_check, frames_file=options.frames_file, satellite=options.satellite, baseband_file=options.baseband_file)

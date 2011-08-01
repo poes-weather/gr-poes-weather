@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Fri Jul  8 13:53:35 2011</timestamp>
+  <timestamp>Mon Aug  1 13:46:05 2011</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -1505,68 +1505,6 @@
     </param>
   </block>
   <block>
-    <key>gr_clock_recovery_mm_xx</key>
-    <param>
-      <key>id</key>
-      <value>gr_clock_recovery_mm_xx_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>omega</key>
-      <value>sps/2.0</value>
-    </param>
-    <param>
-      <key>gain_omega</key>
-      <value>clock_alpha**2/4.0</value>
-    </param>
-    <param>
-      <key>mu</key>
-      <value>0.5</value>
-    </param>
-    <param>
-      <key>gain_mu</key>
-      <value>clock_alpha</value>
-    </param>
-    <param>
-      <key>omega_relative_limit</key>
-      <value>max_clock_offset</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(121, 1410)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>gr_binary_slicer_fb</key>
-    <param>
-      <key>id</key>
-      <value>gr_binary_slicer_fb_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(647, 1446)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>gr_file_sink</key>
     <param>
       <key>id</key>
@@ -1618,37 +1556,6 @@
     <param>
       <key>_coordinate</key>
       <value>(119, 1585)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>gr_multiply_const_vxx</key>
-    <param>
-      <key>id</key>
-      <value>gr_multiply_const_vxx_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>const</key>
-      <value>-1</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(416, 1442)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1829,6 +1736,99 @@
       <value>0</value>
     </param>
   </block>
+  <block>
+    <key>gr_clock_recovery_mm_xx</key>
+    <param>
+      <key>id</key>
+      <value>gr_clock_recovery_mm_xx_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>omega</key>
+      <value>sps/2.0</value>
+    </param>
+    <param>
+      <key>gain_omega</key>
+      <value>clock_alpha**2/4.0</value>
+    </param>
+    <param>
+      <key>mu</key>
+      <value>0.5</value>
+    </param>
+    <param>
+      <key>gain_mu</key>
+      <value>clock_alpha</value>
+    </param>
+    <param>
+      <key>omega_relative_limit</key>
+      <value>max_clock_offset</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(121, 1410)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_binary_slicer_fb</key>
+    <param>
+      <key>id</key>
+      <value>gr_binary_slicer_fb_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(647, 1446)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gr_multiply_const_vxx</key>
+    <param>
+      <key>id</key>
+      <value>gr_multiply_const_vxx_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>const</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(416, 1474)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>poesweather_mn1_hrpt_deframer_0</source_block_id>
     <sink_block_id>gr_file_sink_0_0</sink_block_id>
@@ -1903,6 +1903,12 @@
   </connection>
   <connection>
     <source_block_id>gr_multiply_const_vxx_0</source_block_id>
+    <sink_block_id>gr_binary_slicer_fb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>gr_clock_recovery_mm_xx_0</source_block_id>
     <sink_block_id>gr_binary_slicer_fb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

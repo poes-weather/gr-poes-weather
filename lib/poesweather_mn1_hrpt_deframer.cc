@@ -49,12 +49,13 @@ poesweather_make_mn1_hrpt_deframer(bool sync_check)
 poesweather_mn1_hrpt_deframer::poesweather_mn1_hrpt_deframer(bool sync_check)
   : gr_block("mn1_hrpt_deframer",
 	     gr_make_io_signature(1, 1, sizeof(char)),
-             gr_make_io_signature(1, 1, sizeof(short))),
+             gr_make_io_signature(1, 1, sizeof(unsigned short))),
   d_sync_check(sync_check)
 {
   set_output_multiple(MN1_HRPT_SYNC_WORDS); // room for writing full sync when received
   d_mid_bit = true;
   d_last_bit = 0;
+  d_frame_count = 0;
   enter_idle();
 }
 
@@ -98,11 +99,8 @@ poesweather_mn1_hrpt_deframer::general_work(int noutput_items,
         if (d_shifter == MN1_HRPT_FRAME_SYNC) {
           out[j++] = (unsigned short) (MN1_HRPT_FRAME_SYNC >> 16);
           out[j++] = (unsigned short) MN1_HRPT_FRAME_SYNC;
-          //out[j++] = (unsigned short) 0xcf1a;
-          //out[j++] = (unsigned short) 0x1dfc;
 	  enter_synced();
 	  fprintf(stderr, "M N1 Sync found: 0x%04X\n", d_shifter);
-
 	}
 	break;
 	
@@ -115,8 +113,13 @@ poesweather_mn1_hrpt_deframer::general_work(int noutput_items,
 	  if (--d_word_count == 0) {
               if (d_sync_check)
                   enter_idle();
-              else 
-                  d_word_count = MN1_HRPT_FRAME_WORDS;
+              else {
+                  d_word_count = MN1_HRPT_FRAME_WORDS - MN1_HRPT_SYNC_WORDS;
+                  out[j++] = (unsigned short) (MN1_HRPT_FRAME_SYNC >> 16);
+                  out[j++] = (unsigned short) MN1_HRPT_FRAME_SYNC;
+                  d_frame_count++;
+                  // fprintf(stderr, "Frame: %d\n", d_frame_count);
+              }
 	  }
 	}
 	break;

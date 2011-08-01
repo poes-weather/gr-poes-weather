@@ -48,7 +48,8 @@ class poesweather_mn1_hrpt_deframer : public gr_block
   unsigned int   d_bit_count;
   unsigned int   d_word_count;
   unsigned long  d_shifter;     // 32 bit sync word
-  unsigned short d_word;        // 10 bit HRPT word
+  unsigned short d_word;        // 16 bit HRPT word
+  int d_frame_count;
 
   void enter_idle();
   void enter_synced();
