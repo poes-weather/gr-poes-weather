@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>NOAA HRPT Enhanced Deframer</name>
+  <name>NOAA HRPT Deframer</name>
   <key>poesweather_noaa_hrpt_deframer</key>
   <category>POES-Weather</category>
   <import>import poesweather</import>

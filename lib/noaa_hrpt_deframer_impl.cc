@@ -91,13 +91,13 @@ namespace gr {
                                           gr_vector_const_void_star &input_items,
                                           gr_vector_void_star &output_items)
     {
-        char bit, diff;
-
-        int ninputs = ninput_items[0];
-        const char *in = (const char *)input_items[0];
+        const unsigned char *in = (const unsigned char *)input_items[0];
         unsigned short *out = (unsigned short *)output_items[0];
+        int ninputs = ninput_items[0];
+        char bit, diff;
+        int i, j;
 
-        int i = 0, j = 0;
+        i = j = 0;
         while(i < ninputs && j < noutput_items) {
             bit = in[i++];
             diff = bit ^ d_last_bit;

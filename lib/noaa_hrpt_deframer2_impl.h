@@ -1,6 +1,8 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2013 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2013:
+ *      POES-Weather Ab Ltd             info@poes-weather.com
+ *      Martin Blaho
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,22 +35,23 @@ namespace gr {
         noaa_hrpt_deframer2_impl(int idle_after_n_sync_not_found);
         ~noaa_hrpt_deframer2_impl();
 
-        void forecast(int noutput_items, gr_vector_int &ninput_items_required);
+        //void forecast(int noutput_items, gr_vector_int &ninput_items_required);
 
-        int work(int noutput_items,
-                 gr_vector_const_void_star &input_items,
-                 gr_vector_void_star &output_items);
+        int general_work(int noutput_items,
+                         gr_vector_int &ninput_items,
+                         gr_vector_const_void_star &input_items,
+                         gr_vector_void_star &output_items);
 
     protected:
         void enter_idle(void);
         void enter_synced(void);
+        void write_sync(unsigned short *out, int *index);
 
 
     private:
-        int                d_resync_after;
-        int                d_item_count;
+        int                d_idle_after_n_sync_fail;
         int                d_sync_marker_count;
-        int                d_nosync_marker_count;
+        int                d_bad_sync_marker_count;
 
         unsigned int       d_state;
         bool               d_mid_bit;
