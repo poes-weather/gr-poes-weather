@@ -6,10 +6,18 @@
   <import>import poesweather</import>
   <make>poesweather.noaa_hrpt_deframer($sync_check)</make>
   <param>
-    <name>Sync check</name>
+    <name>Check every frame sync</name>
     <key>sync_check</key>
     <value>False</value>
     <type>bool</type>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
   </param>
 
   <sink>
@@ -24,6 +32,6 @@
   <doc>
 NOAA POES HRPT Enhanced Deframer block.
 
-Sync check: True, validate every frame sync. False, don't validate again after sync is found.
+Check every frame sync: True, validate every frame sync. False, don't validate again after sync is found.
   </doc>
 </block>
