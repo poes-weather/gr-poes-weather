@@ -1,6 +1,65 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Wed May  8 13:49:39 2013</timestamp>
+  <timestamp>Mon May 13 11:49:03 2013</timestamp>
+  <block>
+    <key>options</key>
+    <param>
+      <key>id</key>
+      <value>pw_rx_bb_noaa_hrpt</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>Enhanced NOAA HRPT Receiver</value>
+    </param>
+    <param>
+      <key>author</key>
+      <value>POES Weather Ab Ltd &amp; Martin Blaho</value>
+    </param>
+    <param>
+      <key>description</key>
+      <value>Enhanced NOAA HRPT Receiver</value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>2000, 2000</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>wx_gui</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>Custom</value>
+    </param>
+    <param>
+      <key>run_options</key>
+      <value>prompt</value>
+    </param>
+    <param>
+      <key>run</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>max_nouts</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 10)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
   <block>
     <key>import</key>
     <param>
@@ -1529,6 +1588,60 @@
     </param>
   </block>
   <block>
+    <key>blocks_complex_to_interleaved_short</key>
+    <param>
+      <key>id</key>
+      <value>blocks_complex_to_interleaved_short_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(422, 1046)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_file_sink</key>
+    <param>
+      <key>id</key>
+      <value>blocks_file_sink_1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>file</key>
+      <value>baseband_file</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>short</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>unbuffered</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(651, 1035)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>uhd_usrp_source</key>
     <param>
       <key>id</key>
@@ -1676,7 +1789,7 @@
     </param>
     <param>
       <key>gain0</key>
-      <value>gain</value>
+      <value>gain_slider</value>
     </param>
     <param>
       <key>ant0</key>
@@ -2227,7 +2340,7 @@
     </param>
     <param>
       <key>ref_level</key>
-      <value>-25</value>
+      <value>-70</value>
     </param>
     <param>
       <key>ref_scale</key>
@@ -2276,119 +2389,6 @@
     <param>
       <key>_coordinate</key>
       <value>(400, 1145)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_complex_to_interleaved_short</key>
-    <param>
-      <key>id</key>
-      <value>blocks_complex_to_interleaved_short_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(422, 1046)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_file_sink</key>
-    <param>
-      <key>id</key>
-      <value>blocks_file_sink_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>baseband_file</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>short</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>unbuffered</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(651, 1035)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>options</key>
-    <param>
-      <key>id</key>
-      <value>pw_rx_bb_noaa_hrpt</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>Enhanced NOAA HRPT Receiver</value>
-    </param>
-    <param>
-      <key>author</key>
-      <value>POES Weather Ab Ltd &amp; Martin Blaho</value>
-    </param>
-    <param>
-      <key>description</key>
-      <value>Enhanced NOAA HRPT Receiver</value>
-    </param>
-    <param>
-      <key>window_size</key>
-      <value>2000, 2000</value>
-    </param>
-    <param>
-      <key>generate_options</key>
-      <value>wx_gui</value>
-    </param>
-    <param>
-      <key>category</key>
-      <value>Custom</value>
-    </param>
-    <param>
-      <key>run_options</key>
-      <value>prompt</value>
-    </param>
-    <param>
-      <key>run</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>max_nouts</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 10)</value>
     </param>
     <param>
       <key>_rotation</key>

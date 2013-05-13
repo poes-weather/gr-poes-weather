@@ -4,7 +4,7 @@
 # Title: Enhanced NOAA HRPT Receiver
 # Author: POES Weather Ab Ltd & Martin Blaho
 # Description: Enhanced NOAA HRPT Receiver
-# Generated: Wed May  8 14:16:46 2013
+# Generated: Mon May 13 11:49:16 2013
 ##################################################
 
 from gnuradio import analog
@@ -85,6 +85,29 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		##################################################
 		# Blocks
 		##################################################
+		_gain_slider_sizer = wx.BoxSizer(wx.VERTICAL)
+		self._gain_slider_text_box = forms.text_box(
+			parent=self.GetWin(),
+			sizer=_gain_slider_sizer,
+			value=self.gain_slider,
+			callback=self.set_gain_slider,
+			label="Gain",
+			converter=forms.int_converter(),
+			proportion=0,
+		)
+		self._gain_slider_slider = forms.slider(
+			parent=self.GetWin(),
+			sizer=_gain_slider_sizer,
+			value=self.gain_slider,
+			callback=self.set_gain_slider,
+			minimum=0,
+			maximum=100,
+			num_steps=100,
+			style=wx.SL_HORIZONTAL,
+			cast=int,
+			proportion=1,
+		)
+		self.GridAdd(_gain_slider_sizer, 2, 0, 1, 1)
 		self.displays = self.displays = wx.Notebook(self.GetWin(), style=wx.NB_TOP)
 		self.displays.AddPage(grc_wxgui.Panel(self.displays), "RX NOAA HRPT")
 		self.displays.AddPage(grc_wxgui.Panel(self.displays), "Information")
@@ -117,7 +140,7 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 			baseband_freq=0,
 			y_per_div=5,
 			y_divs=10,
-			ref_level=-25,
+			ref_level=-70,
 			ref_scale=2.0,
 			sample_rate=samp_rate,
 			fft_size=1024,
@@ -138,7 +161,7 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.uhd_usrp_source_0.set_subdev_spec(side, 0)
 		self.uhd_usrp_source_0.set_samp_rate(samp_rate)
 		self.uhd_usrp_source_0.set_center_freq(freq, 0)
-		self.uhd_usrp_source_0.set_gain(gain, 0)
+		self.uhd_usrp_source_0.set_gain(gain_slider, 0)
 		self._sync_check_txt_static_text = forms.static_text(
 			parent=self.GetWin(),
 			value=self.sync_check_txt,
@@ -204,29 +227,6 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		)
 		self.GridAdd(_pll_alpha_sizer, 2, 1, 1, 1)
 		self.pll = noaa.hrpt_pll_cf(pll_alpha, pll_alpha**2/4.0, max_carrier_offset)
-		_gain_slider_sizer = wx.BoxSizer(wx.VERTICAL)
-		self._gain_slider_text_box = forms.text_box(
-			parent=self.GetWin(),
-			sizer=_gain_slider_sizer,
-			value=self.gain_slider,
-			callback=self.set_gain_slider,
-			label="Gain",
-			converter=forms.int_converter(),
-			proportion=0,
-		)
-		self._gain_slider_slider = forms.slider(
-			parent=self.GetWin(),
-			sizer=_gain_slider_sizer,
-			value=self.gain_slider,
-			callback=self.set_gain_slider,
-			minimum=0,
-			maximum=100,
-			num_steps=100,
-			style=wx.SL_HORIZONTAL,
-			cast=int,
-			proportion=1,
-		)
-		self.GridAdd(_gain_slider_sizer, 2, 0, 1, 1)
 		self._freq_tb_text_box = forms.text_box(
 			parent=self.GetWin(),
 			value=self.freq_tb,
@@ -291,7 +291,6 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self._saved_gain_config.set("satname", 'gain', str(self.gain))
 		self._saved_gain_config.write(open(self.config_filename, 'w'))
 		self.set_gain_slider(self.gain)
-		self.uhd_usrp_source_0.set_gain(self.gain, 0)
 
 	def get_freq(self):
 		return self.freq
@@ -346,8 +345,8 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.set_sps(self.samp_rate/self.sym_rate)
 		self.set_max_carrier_offset(2*math.pi*100e3/self.samp_rate)
 		self.set_sample_rate_text(self.samp_rate)
-		self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
 		self.wxgui_fftsink2_0.set_sample_rate(self.samp_rate)
+		self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
 
 	def get_config_filename(self):
 		return self.config_filename
@@ -479,6 +478,7 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.gain_slider = gain_slider
 		self._gain_slider_slider.set_value(self.gain_slider)
 		self._gain_slider_text_box.set_value(self.gain_slider)
+		self.uhd_usrp_source_0.set_gain(self.gain_slider, 0)
 
 	def get_freq_tb(self):
 		return self.freq_tb
