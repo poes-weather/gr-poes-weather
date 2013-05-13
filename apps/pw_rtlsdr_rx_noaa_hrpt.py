@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 ##################################################
 # Gnuradio Python Flow Graph
-# Title: Enhanced NOAA HRPT Receiver
+# Title: Enhanced NOAA HRPT Receiver using USB DVB-T Dongles
 # Author: POES Weather Ab Ltd & Martin Blaho
 # Description: Enhanced NOAA HRPT Receiver
-# Generated: Tue May 14 01:51:40 2013
+# Generated: Tue May 14 01:51:50 2013
 ##################################################
 
 from gnuradio import analog
@@ -13,7 +13,6 @@ from gnuradio import digital
 from gnuradio import eng_notation
 from gnuradio import gr
 from gnuradio import noaa
-from gnuradio import uhd
 from gnuradio import window
 from gnuradio.eng_option import eng_option
 from gnuradio.gr import firdes
@@ -24,33 +23,35 @@ from optparse import OptionParser
 from time import strftime, localtime
 import ConfigParser
 import math, os
+import osmosdr
 import poesweather
 import wx
 
-class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
+class pw_rtlsdr_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 
-	def __init__(self, satellite='NOAA-XX', gain=35, freq=1698e6, sync_check=False, side="A:0", rate=2e6, frames_file=os.environ['HOME'] + '/data/noaa/frames/NOAA-XX.hrpt'):
-		grc_wxgui.top_block_gui.__init__(self, title="Enhanced NOAA HRPT Receiver")
+	def __init__(self, freq=1698e6, rate=2e6, frames_file=os.environ['HOME'] + '/data/noaa/frames/NOAA-XX.hrpt', rtlsdr="rtl=0", ifgain=20, satellite='NOAA-XX', sync_check=False, rfgain=40):
+		grc_wxgui.top_block_gui.__init__(self, title="Enhanced NOAA HRPT Receiver using USB DVB-T Dongles")
 		_icon_path = "/usr/share/icons/hicolor/32x32/apps/gnuradio-grc.png"
 		self.SetIcon(wx.Icon(_icon_path, wx.BITMAP_TYPE_ANY))
 
 		##################################################
 		# Parameters
 		##################################################
-		self.satellite = satellite
-		self.gain = gain
 		self.freq = freq
-		self.sync_check = sync_check
-		self.side = side
 		self.rate = rate
 		self.frames_file = frames_file
+		self.rtlsdr = rtlsdr
+		self.ifgain = ifgain
+		self.satellite = satellite
+		self.sync_check = sync_check
+		self.rfgain = rfgain
 
 		##################################################
 		# Variables
 		##################################################
 		self.sym_rate = sym_rate = 600*1109
 		self.samp_rate = samp_rate = rate
-		self.config_filename = config_filename = os.environ['HOME']+'/.gnuradio/noaa_hrpt.conf'
+		self.config_filename = config_filename = os.environ['HOME']+'/.gnuradio/rtlsdr_noaa_hrpt.conf'
 		self.sps = sps = samp_rate/sym_rate
 		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
 		self._saved_pll_alpha_config.read(config_filename)
@@ -62,21 +63,26 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		try: saved_clock_alpha = self._saved_clock_alpha_config.getfloat(satellite, 'clock_alpha')
 		except: saved_clock_alpha = 0.001
 		self.saved_clock_alpha = saved_clock_alpha
-		self.sync_check_txt = sync_check_txt = sync_check
-		self.side_text = side_text = side
-		self._saved_gain_config = ConfigParser.ConfigParser()
-		self._saved_gain_config.read(config_filename)
-		try: saved_gain = self._saved_gain_config.getfloat(satellite, 'gain')
-		except: saved_gain = gain
-		self.saved_gain = saved_gain
+		self.sync_check_cb = sync_check_cb = sync_check
+		self._saved_rf_gain_config = ConfigParser.ConfigParser()
+		self._saved_rf_gain_config.read(config_filename)
+		try: saved_rf_gain = self._saved_rf_gain_config.getfloat(satellite, 'rf-gain')
+		except: saved_rf_gain = rfgain
+		self.saved_rf_gain = saved_rf_gain
+		self._saved_if_gain_config = ConfigParser.ConfigParser()
+		self._saved_if_gain_config.read(config_filename)
+		try: saved_if_gain = self._saved_if_gain_config.getfloat(satellite, 'if-gain')
+		except: saved_if_gain = ifgain
+		self.saved_if_gain = saved_if_gain
 		self.satellite_text = satellite_text = satellite
 		self.sample_rate_text = sample_rate_text = samp_rate
+		self.rf_gain_slider = rf_gain_slider = rfgain
 		self.rate_tb = rate_tb = rate
 		self.pll_alpha = pll_alpha = saved_pll_alpha
 		self.max_clock_offset = max_clock_offset = 0.1
 		self.max_carrier_offset = max_carrier_offset = 2*math.pi*100e3/samp_rate
+		self.if_gain_slider = if_gain_slider = ifgain
 		self.hs = hs = int(sps/2.0)
-		self.gain_slider = gain_slider = gain
 		self.freq_tb = freq_tb = freq
 		self.frames_outfile_text = frames_outfile_text = frames_file
 		self.datetime_text = datetime_text = strftime("%A, %B %d %Y %H:%M:%S", localtime())
@@ -85,21 +91,21 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		##################################################
 		# Blocks
 		##################################################
-		_gain_slider_sizer = wx.BoxSizer(wx.VERTICAL)
-		self._gain_slider_text_box = forms.text_box(
+		_rf_gain_slider_sizer = wx.BoxSizer(wx.VERTICAL)
+		self._rf_gain_slider_text_box = forms.text_box(
 			parent=self.GetWin(),
-			sizer=_gain_slider_sizer,
-			value=self.gain_slider,
-			callback=self.set_gain_slider,
-			label="Gain",
+			sizer=_rf_gain_slider_sizer,
+			value=self.rf_gain_slider,
+			callback=self.set_rf_gain_slider,
+			label="RF Gain",
 			converter=forms.int_converter(),
 			proportion=0,
 		)
-		self._gain_slider_slider = forms.slider(
+		self._rf_gain_slider_slider = forms.slider(
 			parent=self.GetWin(),
-			sizer=_gain_slider_sizer,
-			value=self.gain_slider,
-			callback=self.set_gain_slider,
+			sizer=_rf_gain_slider_sizer,
+			value=self.rf_gain_slider,
+			callback=self.set_rf_gain_slider,
 			minimum=0,
 			maximum=100,
 			num_steps=100,
@@ -107,7 +113,30 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 			cast=int,
 			proportion=1,
 		)
-		self.GridAdd(_gain_slider_sizer, 2, 0, 1, 1)
+		self.GridAdd(_rf_gain_slider_sizer, 2, 0, 1, 1)
+		_if_gain_slider_sizer = wx.BoxSizer(wx.VERTICAL)
+		self._if_gain_slider_text_box = forms.text_box(
+			parent=self.GetWin(),
+			sizer=_if_gain_slider_sizer,
+			value=self.if_gain_slider,
+			callback=self.set_if_gain_slider,
+			label="IF Gain",
+			converter=forms.int_converter(),
+			proportion=0,
+		)
+		self._if_gain_slider_slider = forms.slider(
+			parent=self.GetWin(),
+			sizer=_if_gain_slider_sizer,
+			value=self.if_gain_slider,
+			callback=self.set_if_gain_slider,
+			minimum=0,
+			maximum=100,
+			num_steps=100,
+			style=wx.SL_HORIZONTAL,
+			cast=int,
+			proportion=1,
+		)
+		self.GridAdd(_if_gain_slider_sizer, 2, 1, 1, 1)
 		self.displays = self.displays = wx.Notebook(self.GetWin(), style=wx.NB_TOP)
 		self.displays.AddPage(grc_wxgui.Panel(self.displays), "RX NOAA HRPT")
 		self.displays.AddPage(grc_wxgui.Panel(self.displays), "Information")
@@ -134,50 +163,32 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 			cast=float,
 			proportion=1,
 		)
-		self.GridAdd(_clock_alpha_sizer, 2, 2, 1, 1)
+		self.GridAdd(_clock_alpha_sizer, 2, 3, 1, 1)
 		self.wxgui_fftsink2_0 = fftsink2.fft_sink_c(
 			self.displays.GetPage(0).GetWin(),
 			baseband_freq=0,
 			y_per_div=5,
 			y_divs=10,
-			ref_level=-70,
+			ref_level=-30,
 			ref_scale=2.0,
 			sample_rate=samp_rate,
-			fft_size=1024,
-			fft_rate=15,
+			fft_size=512,
+			fft_rate=5,
 			average=True,
 			avg_alpha=0.4,
 			title="NOAA HRPT FFT Spectrum",
 			peak_hold=False,
 		)
 		self.displays.GetPage(0).Add(self.wxgui_fftsink2_0.win)
-		self.uhd_usrp_source_0 = uhd.usrp_source(
-			device_addr="",
-			stream_args=uhd.stream_args(
-				cpu_format="fc32",
-				channels=range(1),
-			),
-		)
-		self.uhd_usrp_source_0.set_subdev_spec(side, 0)
-		self.uhd_usrp_source_0.set_samp_rate(samp_rate)
-		self.uhd_usrp_source_0.set_center_freq(freq, 0)
-		self.uhd_usrp_source_0.set_gain(gain_slider, 0)
-		self._sync_check_txt_static_text = forms.static_text(
+		self._sync_check_cb_check_box = forms.check_box(
 			parent=self.GetWin(),
-			value=self.sync_check_txt,
-			callback=self.set_sync_check_txt,
+			value=self.sync_check_cb,
+			callback=self.set_sync_check_cb,
 			label="Continuous sync check",
-			converter=forms.str_converter(),
+			true=True,
+			false=False,
 		)
-		self.GridAdd(self._sync_check_txt_static_text, 0, 2, 1, 1)
-		self._side_text_static_text = forms.static_text(
-			parent=self.GetWin(),
-			value=self.side_text,
-			callback=self.set_side_text,
-			label="USRP Side",
-			converter=forms.str_converter(),
-		)
-		self.GridAdd(self._side_text_static_text, 0, 0, 1, 1)
+		self.GridAdd(self._sync_check_cb_check_box, 1, 2, 1, 1)
 		self._satellite_text_static_text = forms.static_text(
 			parent=self.GetWin(),
 			value=self.satellite_text,
@@ -225,8 +236,17 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 			cast=float,
 			proportion=1,
 		)
-		self.GridAdd(_pll_alpha_sizer, 2, 1, 1, 1)
+		self.GridAdd(_pll_alpha_sizer, 2, 2, 1, 1)
 		self.pll = noaa.hrpt_pll_cf(pll_alpha, pll_alpha**2/4.0, max_carrier_offset)
+		self.osmosdr_source_c_0 = osmosdr.source_c( args="nchan=" + str(1) + " " + rtlsdr )
+		self.osmosdr_source_c_0.set_sample_rate(samp_rate)
+		self.osmosdr_source_c_0.set_center_freq(freq, 0)
+		self.osmosdr_source_c_0.set_freq_corr(0, 0)
+		self.osmosdr_source_c_0.set_iq_balance_mode(0, 0)
+		self.osmosdr_source_c_0.set_gain_mode(0, 0)
+		self.osmosdr_source_c_0.set_gain(rf_gain_slider, 0)
+		self.osmosdr_source_c_0.set_if_gain(if_gain_slider, 0)
+			
 		self._freq_tb_text_box = forms.text_box(
 			parent=self.GetWin(),
 			value=self.freq_tb,
@@ -263,46 +283,13 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		##################################################
 		self.connect((self.analog_agc_xx_0, 0), (self.pll, 0))
 		self.connect((self.pll, 0), (self.blocks_moving_average_xx_0, 0))
-		self.connect((self.uhd_usrp_source_0, 0), (self.wxgui_fftsink2_0, 0))
-		self.connect((self.uhd_usrp_source_0, 0), (self.analog_agc_xx_0, 0))
 		self.connect((self.blocks_moving_average_xx_0, 0), (self.digital_clock_recovery_mm_xx_0, 0))
 		self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
 		self.connect((self.poesweather_noaa_hrpt_deframer_0, 0), (self.blocks_file_sink_0, 0))
 		self.connect((self.digital_binary_slicer_fb_0, 0), (self.poesweather_noaa_hrpt_deframer_0, 0))
+		self.connect((self.osmosdr_source_c_0, 0), (self.wxgui_fftsink2_0, 0))
+		self.connect((self.osmosdr_source_c_0, 0), (self.analog_agc_xx_0, 0))
 
-
-	def get_satellite(self):
-		return self.satellite
-
-	def set_satellite(self, satellite):
-		self.satellite = satellite
-		self.set_satellite_text(self.satellite)
-		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
-		self._saved_clock_alpha_config.read(self.config_filename)
-		if not self._saved_clock_alpha_config.has_section(self.satellite):
-			self._saved_clock_alpha_config.add_section(self.satellite)
-		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
-		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
-		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
-		self._saved_pll_alpha_config.read(self.config_filename)
-		if not self._saved_pll_alpha_config.has_section(self.satellite):
-			self._saved_pll_alpha_config.add_section(self.satellite)
-		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
-		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
-		self._saved_gain_config = ConfigParser.ConfigParser()
-		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section(self.satellite):
-			self._saved_gain_config.add_section(self.satellite)
-		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
-		self._saved_gain_config.write(open(self.config_filename, 'w'))
-
-	def get_gain(self):
-		return self.gain
-
-	def set_gain(self, gain):
-		self.gain = gain
-		self.set_gain_slider(self.gain)
-		self.set_saved_gain(self.gain)
 
 	def get_freq(self):
 		return self.freq
@@ -310,21 +297,7 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 	def set_freq(self, freq):
 		self.freq = freq
 		self.set_freq_tb(self.freq)
-		self.uhd_usrp_source_0.set_center_freq(self.freq, 0)
-
-	def get_sync_check(self):
-		return self.sync_check
-
-	def set_sync_check(self, sync_check):
-		self.sync_check = sync_check
-		self.set_sync_check_txt(self.sync_check)
-
-	def get_side(self):
-		return self.side
-
-	def set_side(self, side):
-		self.side = side
-		self.set_side_text(self.side)
+		self.osmosdr_source_c_0.set_center_freq(self.freq, 0)
 
 	def get_rate(self):
 		return self.rate
@@ -342,6 +315,66 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.set_frames_outfile_text(self.frames_file)
 		self.blocks_file_sink_0.open(self.frames_file)
 
+	def get_rtlsdr(self):
+		return self.rtlsdr
+
+	def set_rtlsdr(self, rtlsdr):
+		self.rtlsdr = rtlsdr
+
+	def get_ifgain(self):
+		return self.ifgain
+
+	def set_ifgain(self, ifgain):
+		self.ifgain = ifgain
+		self.set_saved_if_gain(self.ifgain)
+		self.set_if_gain_slider(self.ifgain)
+
+	def get_satellite(self):
+		return self.satellite
+
+	def set_satellite(self, satellite):
+		self.satellite = satellite
+		self.set_satellite_text(self.satellite)
+		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
+		self._saved_pll_alpha_config.read(self.config_filename)
+		if not self._saved_pll_alpha_config.has_section(self.satellite):
+			self._saved_pll_alpha_config.add_section(self.satellite)
+		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
+		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
+		self._saved_if_gain_config = ConfigParser.ConfigParser()
+		self._saved_if_gain_config.read(self.config_filename)
+		if not self._saved_if_gain_config.has_section(self.satellite):
+			self._saved_if_gain_config.add_section(self.satellite)
+		self._saved_if_gain_config.set(self.satellite, 'if-gain', str(self.if_gain_slider))
+		self._saved_if_gain_config.write(open(self.config_filename, 'w'))
+		self._saved_rf_gain_config = ConfigParser.ConfigParser()
+		self._saved_rf_gain_config.read(self.config_filename)
+		if not self._saved_rf_gain_config.has_section(self.satellite):
+			self._saved_rf_gain_config.add_section(self.satellite)
+		self._saved_rf_gain_config.set(self.satellite, 'rf-gain', str(self.rf_gain_slider))
+		self._saved_rf_gain_config.write(open(self.config_filename, 'w'))
+		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
+		self._saved_clock_alpha_config.read(self.config_filename)
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
+		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
+
+	def get_sync_check(self):
+		return self.sync_check
+
+	def set_sync_check(self, sync_check):
+		self.sync_check = sync_check
+		self.set_sync_check_cb(self.sync_check)
+
+	def get_rfgain(self):
+		return self.rfgain
+
+	def set_rfgain(self, rfgain):
+		self.rfgain = rfgain
+		self.set_saved_rf_gain(self.rfgain)
+		self.set_rf_gain_slider(self.rfgain)
+
 	def get_sym_rate(self):
 		return self.sym_rate
 
@@ -357,32 +390,38 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.set_sps(self.samp_rate/self.sym_rate)
 		self.set_max_carrier_offset(2*math.pi*100e3/self.samp_rate)
 		self.set_sample_rate_text(self.samp_rate)
+		self.osmosdr_source_c_0.set_sample_rate(self.samp_rate)
 		self.wxgui_fftsink2_0.set_sample_rate(self.samp_rate)
-		self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
 
 	def get_config_filename(self):
 		return self.config_filename
 
 	def set_config_filename(self, config_filename):
 		self.config_filename = config_filename
-		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
-		self._saved_clock_alpha_config.read(self.config_filename)
-		if not self._saved_clock_alpha_config.has_section(self.satellite):
-			self._saved_clock_alpha_config.add_section(self.satellite)
-		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
-		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
 		self._saved_pll_alpha_config.read(self.config_filename)
 		if not self._saved_pll_alpha_config.has_section(self.satellite):
 			self._saved_pll_alpha_config.add_section(self.satellite)
 		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
 		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
-		self._saved_gain_config = ConfigParser.ConfigParser()
-		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section(self.satellite):
-			self._saved_gain_config.add_section(self.satellite)
-		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
-		self._saved_gain_config.write(open(self.config_filename, 'w'))
+		self._saved_if_gain_config = ConfigParser.ConfigParser()
+		self._saved_if_gain_config.read(self.config_filename)
+		if not self._saved_if_gain_config.has_section(self.satellite):
+			self._saved_if_gain_config.add_section(self.satellite)
+		self._saved_if_gain_config.set(self.satellite, 'if-gain', str(self.if_gain_slider))
+		self._saved_if_gain_config.write(open(self.config_filename, 'w'))
+		self._saved_rf_gain_config = ConfigParser.ConfigParser()
+		self._saved_rf_gain_config.read(self.config_filename)
+		if not self._saved_rf_gain_config.has_section(self.satellite):
+			self._saved_rf_gain_config.add_section(self.satellite)
+		self._saved_rf_gain_config.set(self.satellite, 'rf-gain', str(self.rf_gain_slider))
+		self._saved_rf_gain_config.write(open(self.config_filename, 'w'))
+		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
+		self._saved_clock_alpha_config.read(self.config_filename)
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
+		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 
 	def get_sps(self):
 		return self.sps
@@ -406,25 +445,24 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.saved_clock_alpha = saved_clock_alpha
 		self.set_clock_alpha(self.saved_clock_alpha)
 
-	def get_sync_check_txt(self):
-		return self.sync_check_txt
+	def get_sync_check_cb(self):
+		return self.sync_check_cb
 
-	def set_sync_check_txt(self, sync_check_txt):
-		self.sync_check_txt = sync_check_txt
-		self._sync_check_txt_static_text.set_value(self.sync_check_txt)
+	def set_sync_check_cb(self, sync_check_cb):
+		self.sync_check_cb = sync_check_cb
+		self._sync_check_cb_check_box.set_value(self.sync_check_cb)
 
-	def get_side_text(self):
-		return self.side_text
+	def get_saved_rf_gain(self):
+		return self.saved_rf_gain
 
-	def set_side_text(self, side_text):
-		self.side_text = side_text
-		self._side_text_static_text.set_value(self.side_text)
+	def set_saved_rf_gain(self, saved_rf_gain):
+		self.saved_rf_gain = saved_rf_gain
 
-	def get_saved_gain(self):
-		return self.saved_gain
+	def get_saved_if_gain(self):
+		return self.saved_if_gain
 
-	def set_saved_gain(self, saved_gain):
-		self.saved_gain = saved_gain
+	def set_saved_if_gain(self, saved_if_gain):
+		self.saved_if_gain = saved_if_gain
 
 	def get_satellite_text(self):
 		return self.satellite_text
@@ -440,6 +478,21 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.sample_rate_text = sample_rate_text
 		self._sample_rate_text_static_text.set_value(self.sample_rate_text)
 
+	def get_rf_gain_slider(self):
+		return self.rf_gain_slider
+
+	def set_rf_gain_slider(self, rf_gain_slider):
+		self.rf_gain_slider = rf_gain_slider
+		self._saved_rf_gain_config = ConfigParser.ConfigParser()
+		self._saved_rf_gain_config.read(self.config_filename)
+		if not self._saved_rf_gain_config.has_section(self.satellite):
+			self._saved_rf_gain_config.add_section(self.satellite)
+		self._saved_rf_gain_config.set(self.satellite, 'rf-gain', str(self.rf_gain_slider))
+		self._saved_rf_gain_config.write(open(self.config_filename, 'w'))
+		self._rf_gain_slider_slider.set_value(self.rf_gain_slider)
+		self._rf_gain_slider_text_box.set_value(self.rf_gain_slider)
+		self.osmosdr_source_c_0.set_gain(self.rf_gain_slider, 0)
+
 	def get_rate_tb(self):
 		return self.rate_tb
 
@@ -452,8 +505,6 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 
 	def set_pll_alpha(self, pll_alpha):
 		self.pll_alpha = pll_alpha
-		self._pll_alpha_slider.set_value(self.pll_alpha)
-		self._pll_alpha_text_box.set_value(self.pll_alpha)
 		self.pll.set_alpha(self.pll_alpha)
 		self.pll.set_beta(self.pll_alpha**2/4.0)
 		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
@@ -462,6 +513,8 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 			self._saved_pll_alpha_config.add_section(self.satellite)
 		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
 		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
+		self._pll_alpha_slider.set_value(self.pll_alpha)
+		self._pll_alpha_text_box.set_value(self.pll_alpha)
 
 	def get_max_clock_offset(self):
 		return self.max_clock_offset
@@ -476,27 +529,27 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.max_carrier_offset = max_carrier_offset
 		self.pll.set_max_offset(self.max_carrier_offset)
 
+	def get_if_gain_slider(self):
+		return self.if_gain_slider
+
+	def set_if_gain_slider(self, if_gain_slider):
+		self.if_gain_slider = if_gain_slider
+		self._saved_if_gain_config = ConfigParser.ConfigParser()
+		self._saved_if_gain_config.read(self.config_filename)
+		if not self._saved_if_gain_config.has_section(self.satellite):
+			self._saved_if_gain_config.add_section(self.satellite)
+		self._saved_if_gain_config.set(self.satellite, 'if-gain', str(self.if_gain_slider))
+		self._saved_if_gain_config.write(open(self.config_filename, 'w'))
+		self.osmosdr_source_c_0.set_if_gain(self.if_gain_slider, 0)
+		self._if_gain_slider_slider.set_value(self.if_gain_slider)
+		self._if_gain_slider_text_box.set_value(self.if_gain_slider)
+
 	def get_hs(self):
 		return self.hs
 
 	def set_hs(self, hs):
 		self.hs = hs
 		self.blocks_moving_average_xx_0.set_length_and_scale(self.hs, 1.0/self.hs)
-
-	def get_gain_slider(self):
-		return self.gain_slider
-
-	def set_gain_slider(self, gain_slider):
-		self.gain_slider = gain_slider
-		self._gain_slider_slider.set_value(self.gain_slider)
-		self._gain_slider_text_box.set_value(self.gain_slider)
-		self.uhd_usrp_source_0.set_gain(self.gain_slider, 0)
-		self._saved_gain_config = ConfigParser.ConfigParser()
-		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section(self.satellite):
-			self._saved_gain_config.add_section(self.satellite)
-		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
-		self._saved_gain_config.write(open(self.config_filename, 'w'))
 
 	def get_freq_tb(self):
 		return self.freq_tb
@@ -524,10 +577,10 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 
 	def set_clock_alpha(self, clock_alpha):
 		self.clock_alpha = clock_alpha
-		self._clock_alpha_slider.set_value(self.clock_alpha)
-		self._clock_alpha_text_box.set_value(self.clock_alpha)
 		self.digital_clock_recovery_mm_xx_0.set_gain_omega(self.clock_alpha**2/4.0)
 		self.digital_clock_recovery_mm_xx_0.set_gain_mu(self.clock_alpha)
+		self._clock_alpha_slider.set_value(self.clock_alpha)
+		self._clock_alpha_text_box.set_value(self.clock_alpha)
 		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
 		self._saved_clock_alpha_config.read(self.config_filename)
 		if not self._saved_clock_alpha_config.has_section(self.satellite):
@@ -537,21 +590,23 @@ class pw_rx_noaa_hrpt(grc_wxgui.top_block_gui):
 
 if __name__ == '__main__':
 	parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
-	parser.add_option("-S", "--satellite", dest="satellite", type="string", default='NOAA-XX',
-		help="Set Satellite [default=%default]")
-	parser.add_option("-g", "--gain", dest="gain", type="eng_float", default=eng_notation.num_to_str(35),
-		help="Set Gain [default=%default]")
 	parser.add_option("-f", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(1698e6),
 		help="Set Frequency [default=%default]")
-	parser.add_option("-c", "--sync-check", dest="sync_check", type="intx", default=False,
-		help="Set Sync check [default=%default]")
-	parser.add_option("-R", "--side", dest="side", type="string", default="A:0",
-		help="Set Side [default=%default]")
 	parser.add_option("-r", "--rate", dest="rate", type="eng_float", default=eng_notation.num_to_str(2e6),
 		help="Set Sample rate [default=%default]")
 	parser.add_option("-o", "--frames-file", dest="frames_file", type="string", default=os.environ['HOME'] + '/data/noaa/frames/NOAA-XX.hrpt',
 		help="Set Frames output filename [default=%default]")
+	parser.add_option("-d", "--rtlsdr", dest="rtlsdr", type="string", default="rtl=0",
+		help="Set RTLSDR Device [default=%default]")
+	parser.add_option("-i", "--ifgain", dest="ifgain", type="eng_float", default=eng_notation.num_to_str(20),
+		help="Set IF Gain [default=%default]")
+	parser.add_option("-S", "--satellite", dest="satellite", type="string", default='NOAA-XX',
+		help="Set Satellite [default=%default]")
+	parser.add_option("-c", "--sync-check", dest="sync_check", type="intx", default=False,
+		help="Set Sync check [default=%default]")
+	parser.add_option("-g", "--rfgain", dest="rfgain", type="eng_float", default=eng_notation.num_to_str(40),
+		help="Set RF Gain [default=%default]")
 	(options, args) = parser.parse_args()
-	tb = pw_rx_noaa_hrpt(satellite=options.satellite, gain=options.gain, freq=options.freq, sync_check=options.sync_check, side=options.side, rate=options.rate, frames_file=options.frames_file)
+	tb = pw_rtlsdr_rx_noaa_hrpt(freq=options.freq, rate=options.rate, frames_file=options.frames_file, rtlsdr=options.rtlsdr, ifgain=options.ifgain, satellite=options.satellite, sync_check=options.sync_check, rfgain=options.rfgain)
 	tb.Run(True)
 

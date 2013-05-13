@@ -4,7 +4,7 @@
 # Title: Enhanced NOAA HRPT Receiver
 # Author: POES Weather Ab Ltd & Martin Blaho
 # Description: Enhanced NOAA HRPT Receiver
-# Generated: Mon May 13 11:49:20 2013
+# Generated: Tue May 14 01:51:44 2013
 ##################################################
 
 from gnuradio import analog
@@ -55,19 +55,19 @@ class pw_rx_bb_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.sps = sps = samp_rate/sym_rate
 		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
 		self._saved_pll_alpha_config.read(config_filename)
-		try: saved_pll_alpha = self._saved_pll_alpha_config.getfloat("satname", 'pll_alpha')
+		try: saved_pll_alpha = self._saved_pll_alpha_config.getfloat(satellite, 'pll_alpha')
 		except: saved_pll_alpha = 0.005
 		self.saved_pll_alpha = saved_pll_alpha
 		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
 		self._saved_clock_alpha_config.read(config_filename)
-		try: saved_clock_alpha = self._saved_clock_alpha_config.getfloat("satname", 'clock_alpha')
+		try: saved_clock_alpha = self._saved_clock_alpha_config.getfloat(satellite, 'clock_alpha')
 		except: saved_clock_alpha = 0.001
 		self.saved_clock_alpha = saved_clock_alpha
 		self.sync_check_txt = sync_check_txt = sync_check
 		self.side_text = side_text = side
 		self._saved_gain_config = ConfigParser.ConfigParser()
 		self._saved_gain_config.read(config_filename)
-		try: saved_gain = self._saved_gain_config.getfloat("satname", 'gain')
+		try: saved_gain = self._saved_gain_config.getfloat(satellite, 'gain')
 		except: saved_gain = gain
 		self.saved_gain = saved_gain
 		self.satellite_text = satellite_text = satellite
@@ -283,20 +283,32 @@ class pw_rx_bb_noaa_hrpt(grc_wxgui.top_block_gui):
 	def set_satellite(self, satellite):
 		self.satellite = satellite
 		self.set_satellite_text(self.satellite)
+		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
+		self._saved_clock_alpha_config.read(self.config_filename)
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
+		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
+		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
+		self._saved_pll_alpha_config.read(self.config_filename)
+		if not self._saved_pll_alpha_config.has_section(self.satellite):
+			self._saved_pll_alpha_config.add_section(self.satellite)
+		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
+		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
+		self._saved_gain_config = ConfigParser.ConfigParser()
+		self._saved_gain_config.read(self.config_filename)
+		if not self._saved_gain_config.has_section(self.satellite):
+			self._saved_gain_config.add_section(self.satellite)
+		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
+		self._saved_gain_config.write(open(self.config_filename, 'w'))
 
 	def get_gain(self):
 		return self.gain
 
 	def set_gain(self, gain):
 		self.gain = gain
-		self.set_saved_gain(self.gain)
-		self._saved_gain_config = ConfigParser.ConfigParser()
-		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section("satname"):
-			self._saved_gain_config.add_section("satname")
-		self._saved_gain_config.set("satname", 'gain', str(self.gain))
-		self._saved_gain_config.write(open(self.config_filename, 'w'))
 		self.set_gain_slider(self.gain)
+		self.set_saved_gain(self.gain)
 
 	def get_freq(self):
 		return self.freq
@@ -366,24 +378,24 @@ class pw_rx_bb_noaa_hrpt(grc_wxgui.top_block_gui):
 
 	def set_config_filename(self, config_filename):
 		self.config_filename = config_filename
+		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
+		self._saved_clock_alpha_config.read(self.config_filename)
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
+		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
 		self._saved_pll_alpha_config.read(self.config_filename)
-		if not self._saved_pll_alpha_config.has_section("satname"):
-			self._saved_pll_alpha_config.add_section("satname")
-		self._saved_pll_alpha_config.set("satname", 'pll_alpha', str(self.pll_alpha))
+		if not self._saved_pll_alpha_config.has_section(self.satellite):
+			self._saved_pll_alpha_config.add_section(self.satellite)
+		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
 		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
 		self._saved_gain_config = ConfigParser.ConfigParser()
 		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section("satname"):
-			self._saved_gain_config.add_section("satname")
-		self._saved_gain_config.set("satname", 'gain', str(self.gain))
+		if not self._saved_gain_config.has_section(self.satellite):
+			self._saved_gain_config.add_section(self.satellite)
+		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
 		self._saved_gain_config.write(open(self.config_filename, 'w'))
-		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
-		self._saved_clock_alpha_config.read(self.config_filename)
-		if not self._saved_clock_alpha_config.has_section("satname"):
-			self._saved_clock_alpha_config.add_section("satname")
-		self._saved_clock_alpha_config.set("satname", 'clock_alpha', str(self.clock_alpha))
-		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 
 	def get_sps(self):
 		return self.sps
@@ -455,14 +467,14 @@ class pw_rx_bb_noaa_hrpt(grc_wxgui.top_block_gui):
 		self.pll_alpha = pll_alpha
 		self._pll_alpha_slider.set_value(self.pll_alpha)
 		self._pll_alpha_text_box.set_value(self.pll_alpha)
-		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
-		self._saved_pll_alpha_config.read(self.config_filename)
-		if not self._saved_pll_alpha_config.has_section("satname"):
-			self._saved_pll_alpha_config.add_section("satname")
-		self._saved_pll_alpha_config.set("satname", 'pll_alpha', str(self.pll_alpha))
-		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
 		self.pll.set_alpha(self.pll_alpha)
 		self.pll.set_beta(self.pll_alpha**2/4.0)
+		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
+		self._saved_pll_alpha_config.read(self.config_filename)
+		if not self._saved_pll_alpha_config.has_section(self.satellite):
+			self._saved_pll_alpha_config.add_section(self.satellite)
+		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
+		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
 
 	def get_max_clock_offset(self):
 		return self.max_clock_offset
@@ -492,6 +504,12 @@ class pw_rx_bb_noaa_hrpt(grc_wxgui.top_block_gui):
 		self._gain_slider_slider.set_value(self.gain_slider)
 		self._gain_slider_text_box.set_value(self.gain_slider)
 		self.uhd_usrp_source_0.set_gain(self.gain_slider, 0)
+		self._saved_gain_config = ConfigParser.ConfigParser()
+		self._saved_gain_config.read(self.config_filename)
+		if not self._saved_gain_config.has_section(self.satellite):
+			self._saved_gain_config.add_section(self.satellite)
+		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
+		self._saved_gain_config.write(open(self.config_filename, 'w'))
 
 	def get_freq_tb(self):
 		return self.freq_tb
@@ -519,16 +537,16 @@ class pw_rx_bb_noaa_hrpt(grc_wxgui.top_block_gui):
 
 	def set_clock_alpha(self, clock_alpha):
 		self.clock_alpha = clock_alpha
-		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
-		self._saved_clock_alpha_config.read(self.config_filename)
-		if not self._saved_clock_alpha_config.has_section("satname"):
-			self._saved_clock_alpha_config.add_section("satname")
-		self._saved_clock_alpha_config.set("satname", 'clock_alpha', str(self.clock_alpha))
-		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 		self._clock_alpha_slider.set_value(self.clock_alpha)
 		self._clock_alpha_text_box.set_value(self.clock_alpha)
 		self.digital_clock_recovery_mm_xx_0.set_gain_omega(self.clock_alpha**2/4.0)
 		self.digital_clock_recovery_mm_xx_0.set_gain_mu(self.clock_alpha)
+		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
+		self._saved_clock_alpha_config.read(self.config_filename)
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
+		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 
 if __name__ == '__main__':
 	parser = OptionParser(option_class=eng_option, usage="%prog: [options]")

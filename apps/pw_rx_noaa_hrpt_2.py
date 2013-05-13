@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 ##################################################
 # Gnuradio Python Flow Graph
-# Title: Enhanced NOAA HRPT Receiver
+# Title: Enhanced NOAA HRPT Receiver 2
 # Author: POES Weather Ab Ltd & Martin Blaho
 # Description: Enhanced NOAA HRPT Receiver
-# Generated: Tue May 14 00:24:20 2013
+# Generated: Tue May 14 01:51:47 2013
 ##################################################
 
 from gnuradio import analog
@@ -25,13 +25,12 @@ from time import strftime, localtime
 import ConfigParser
 import math, os
 import poesweather
-import time
 import wx
 
 class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
 	def __init__(self, satellite='NOAA-XX', gain=35, freq=1698e6, side="A:0", rate=2e6, frames_file=os.environ['HOME'] + '/data/noaa/frames/NOAA-XX.hrpt', allow_n_bad_frames=5):
-		grc_wxgui.top_block_gui.__init__(self, title="Enhanced NOAA HRPT Receiver")
+		grc_wxgui.top_block_gui.__init__(self, title="Enhanced NOAA HRPT Receiver 2")
 		_icon_path = "/usr/share/icons/hicolor/32x32/apps/gnuradio-grc.png"
 		self.SetIcon(wx.Icon(_icon_path, wx.BITMAP_TYPE_ANY))
 
@@ -55,24 +54,24 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.sps = sps = samp_rate/sym_rate
 		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
 		self._saved_pll_alpha_config.read(config_filename)
-		try: saved_pll_alpha = self._saved_pll_alpha_config.getfloat("satname", 'pll_alpha')
+		try: saved_pll_alpha = self._saved_pll_alpha_config.getfloat(satellite, 'pll_alpha')
 		except: saved_pll_alpha = 0.005
 		self.saved_pll_alpha = saved_pll_alpha
 		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
 		self._saved_clock_alpha_config.read(config_filename)
-		try: saved_clock_alpha = self._saved_clock_alpha_config.getfloat("satname", 'clock_alpha')
+		try: saved_clock_alpha = self._saved_clock_alpha_config.getfloat(satellite, 'clock_alpha')
 		except: saved_clock_alpha = 0.001
 		self.saved_clock_alpha = saved_clock_alpha
 		self.allow_n_bad_frames_tb = allow_n_bad_frames_tb = allow_n_bad_frames
 		self.side_text = side_text = side
 		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
 		self._saved_n_bad_frames_config.read(config_filename)
-		try: saved_n_bad_frames = self._saved_n_bad_frames_config.getint("satname", 'allow_n_bad_frames')
+		try: saved_n_bad_frames = self._saved_n_bad_frames_config.getint(satellite, 'allow_n_bad_frames')
 		except: saved_n_bad_frames = allow_n_bad_frames_tb
 		self.saved_n_bad_frames = saved_n_bad_frames
 		self._saved_gain_config = ConfigParser.ConfigParser()
 		self._saved_gain_config.read(config_filename)
-		try: saved_gain = self._saved_gain_config.getfloat("satname", 'gain')
+		try: saved_gain = self._saved_gain_config.getfloat(satellite, 'gain')
 		except: saved_gain = gain
 		self.saved_gain = saved_gain
 		self.satellite_text = satellite_text = satellite
@@ -283,6 +282,30 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 	def set_satellite(self, satellite):
 		self.satellite = satellite
 		self.set_satellite_text(self.satellite)
+		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
+		self._saved_clock_alpha_config.read(self.config_filename)
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
+		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
+		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
+		self._saved_pll_alpha_config.read(self.config_filename)
+		if not self._saved_pll_alpha_config.has_section(self.satellite):
+			self._saved_pll_alpha_config.add_section(self.satellite)
+		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
+		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
+		self._saved_gain_config = ConfigParser.ConfigParser()
+		self._saved_gain_config.read(self.config_filename)
+		if not self._saved_gain_config.has_section(self.satellite):
+			self._saved_gain_config.add_section(self.satellite)
+		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
+		self._saved_gain_config.write(open(self.config_filename, 'w'))
+		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
+		self._saved_n_bad_frames_config.read(self.config_filename)
+		if not self._saved_n_bad_frames_config.has_section(self.satellite):
+			self._saved_n_bad_frames_config.add_section(self.satellite)
+		self._saved_n_bad_frames_config.set(self.satellite, 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
+		self._saved_n_bad_frames_config.write(open(self.config_filename, 'w'))
 
 	def get_gain(self):
 		return self.gain
@@ -353,29 +376,29 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
 	def set_config_filename(self, config_filename):
 		self.config_filename = config_filename
-		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
-		self._saved_pll_alpha_config.read(self.config_filename)
-		if not self._saved_pll_alpha_config.has_section("satname"):
-			self._saved_pll_alpha_config.add_section("satname")
-		self._saved_pll_alpha_config.set("satname", 'pll_alpha', str(self.pll_alpha))
-		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
 		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
 		self._saved_clock_alpha_config.read(self.config_filename)
-		if not self._saved_clock_alpha_config.has_section("satname"):
-			self._saved_clock_alpha_config.add_section("satname")
-		self._saved_clock_alpha_config.set("satname", 'clock_alpha', str(self.clock_alpha))
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
 		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
+		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
+		self._saved_pll_alpha_config.read(self.config_filename)
+		if not self._saved_pll_alpha_config.has_section(self.satellite):
+			self._saved_pll_alpha_config.add_section(self.satellite)
+		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
+		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
 		self._saved_gain_config = ConfigParser.ConfigParser()
 		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section("satname"):
-			self._saved_gain_config.add_section("satname")
-		self._saved_gain_config.set("satname", 'gain', str(self.gain_slider))
+		if not self._saved_gain_config.has_section(self.satellite):
+			self._saved_gain_config.add_section(self.satellite)
+		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
 		self._saved_gain_config.write(open(self.config_filename, 'w'))
 		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
 		self._saved_n_bad_frames_config.read(self.config_filename)
-		if not self._saved_n_bad_frames_config.has_section("satname"):
-			self._saved_n_bad_frames_config.add_section("satname")
-		self._saved_n_bad_frames_config.set("satname", 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
+		if not self._saved_n_bad_frames_config.has_section(self.satellite):
+			self._saved_n_bad_frames_config.add_section(self.satellite)
+		self._saved_n_bad_frames_config.set(self.satellite, 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
 		self._saved_n_bad_frames_config.write(open(self.config_filename, 'w'))
 
 	def get_sps(self):
@@ -405,14 +428,14 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
 	def set_allow_n_bad_frames_tb(self, allow_n_bad_frames_tb):
 		self.allow_n_bad_frames_tb = allow_n_bad_frames_tb
+		self._allow_n_bad_frames_tb_text_box.set_value(self.allow_n_bad_frames_tb)
 		self.set_saved_n_bad_frames(self.allow_n_bad_frames_tb)
 		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
 		self._saved_n_bad_frames_config.read(self.config_filename)
-		if not self._saved_n_bad_frames_config.has_section("satname"):
-			self._saved_n_bad_frames_config.add_section("satname")
-		self._saved_n_bad_frames_config.set("satname", 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
+		if not self._saved_n_bad_frames_config.has_section(self.satellite):
+			self._saved_n_bad_frames_config.add_section(self.satellite)
+		self._saved_n_bad_frames_config.set(self.satellite, 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
 		self._saved_n_bad_frames_config.write(open(self.config_filename, 'w'))
-		self._allow_n_bad_frames_tb_text_box.set_value(self.allow_n_bad_frames_tb)
 
 	def get_side_text(self):
 		return self.side_text
@@ -461,14 +484,14 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.pll_alpha = pll_alpha
 		self._pll_alpha_slider.set_value(self.pll_alpha)
 		self._pll_alpha_text_box.set_value(self.pll_alpha)
-		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
-		self._saved_pll_alpha_config.read(self.config_filename)
-		if not self._saved_pll_alpha_config.has_section("satname"):
-			self._saved_pll_alpha_config.add_section("satname")
-		self._saved_pll_alpha_config.set("satname", 'pll_alpha', str(self.pll_alpha))
-		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
 		self.pll.set_alpha(self.pll_alpha)
 		self.pll.set_beta(self.pll_alpha**2/4.0)
+		self._saved_pll_alpha_config = ConfigParser.ConfigParser()
+		self._saved_pll_alpha_config.read(self.config_filename)
+		if not self._saved_pll_alpha_config.has_section(self.satellite):
+			self._saved_pll_alpha_config.add_section(self.satellite)
+		self._saved_pll_alpha_config.set(self.satellite, 'pll_alpha', str(self.pll_alpha))
+		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
 
 	def get_max_clock_offset(self):
 		return self.max_clock_offset
@@ -500,9 +523,9 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.uhd_usrp_source_0.set_gain(self.gain_slider, 0)
 		self._saved_gain_config = ConfigParser.ConfigParser()
 		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section("satname"):
-			self._saved_gain_config.add_section("satname")
-		self._saved_gain_config.set("satname", 'gain', str(self.gain_slider))
+		if not self._saved_gain_config.has_section(self.satellite):
+			self._saved_gain_config.add_section(self.satellite)
+		self._saved_gain_config.set(self.satellite, 'gain', str(self.gain_slider))
 		self._saved_gain_config.write(open(self.config_filename, 'w'))
 
 	def get_freq_tb(self):
@@ -531,16 +554,16 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
 	def set_clock_alpha(self, clock_alpha):
 		self.clock_alpha = clock_alpha
-		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
-		self._saved_clock_alpha_config.read(self.config_filename)
-		if not self._saved_clock_alpha_config.has_section("satname"):
-			self._saved_clock_alpha_config.add_section("satname")
-		self._saved_clock_alpha_config.set("satname", 'clock_alpha', str(self.clock_alpha))
-		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 		self._clock_alpha_slider.set_value(self.clock_alpha)
 		self._clock_alpha_text_box.set_value(self.clock_alpha)
 		self.digital_clock_recovery_mm_xx_0.set_gain_omega(self.clock_alpha**2/4.0)
 		self.digital_clock_recovery_mm_xx_0.set_gain_mu(self.clock_alpha)
+		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
+		self._saved_clock_alpha_config.read(self.config_filename)
+		if not self._saved_clock_alpha_config.has_section(self.satellite):
+			self._saved_clock_alpha_config.add_section(self.satellite)
+		self._saved_clock_alpha_config.set(self.satellite, 'clock_alpha', str(self.clock_alpha))
+		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
 
 if __name__ == '__main__':
 	parser = OptionParser(option_class=eng_option, usage="%prog: [options]")

@@ -24,5 +24,6 @@ GR_PYTHON_INSTALL(
     pw_rx_noaa_hrpt.py
     pw_rx_noaa_hrpt_2.py
     pw_rx_bb_noaa_hrpt.py
+    pw_rtlsdr_rx_noaa_hrpt.py
     DESTINATION bin
 )
