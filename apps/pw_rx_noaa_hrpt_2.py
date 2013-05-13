@@ -4,7 +4,7 @@
 # Title: Enhanced NOAA HRPT Receiver
 # Author: POES Weather Ab Ltd & Martin Blaho
 # Description: Enhanced NOAA HRPT Receiver
-# Generated: Tue May 14 00:12:37 2013
+# Generated: Tue May 14 00:24:20 2013
 ##################################################
 
 from gnuradio import analog
@@ -25,6 +25,7 @@ from time import strftime, localtime
 import ConfigParser
 import math, os
 import poesweather
+import time
 import wx
 
 class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
@@ -62,7 +63,7 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		try: saved_clock_alpha = self._saved_clock_alpha_config.getfloat("satname", 'clock_alpha')
 		except: saved_clock_alpha = 0.001
 		self.saved_clock_alpha = saved_clock_alpha
-		self.allow_n_bad_frames_tb = allow_n_bad_frames_tb = 5
+		self.allow_n_bad_frames_tb = allow_n_bad_frames_tb = allow_n_bad_frames
 		self.side_text = side_text = side
 		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
 		self._saved_n_bad_frames_config.read(config_filename)
@@ -327,6 +328,7 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
 	def set_allow_n_bad_frames(self, allow_n_bad_frames):
 		self.allow_n_bad_frames = allow_n_bad_frames
+		self.set_allow_n_bad_frames_tb(self.allow_n_bad_frames)
 
 	def get_sym_rate(self):
 		return self.sym_rate
@@ -403,7 +405,6 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
 	def set_allow_n_bad_frames_tb(self, allow_n_bad_frames_tb):
 		self.allow_n_bad_frames_tb = allow_n_bad_frames_tb
-		self._allow_n_bad_frames_tb_text_box.set_value(self.allow_n_bad_frames_tb)
 		self.set_saved_n_bad_frames(self.allow_n_bad_frames_tb)
 		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
 		self._saved_n_bad_frames_config.read(self.config_filename)
@@ -411,6 +412,7 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 			self._saved_n_bad_frames_config.add_section("satname")
 		self._saved_n_bad_frames_config.set("satname", 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
 		self._saved_n_bad_frames_config.write(open(self.config_filename, 'w'))
+		self._allow_n_bad_frames_tb_text_box.set_value(self.allow_n_bad_frames_tb)
 
 	def get_side_text(self):
 		return self.side_text
