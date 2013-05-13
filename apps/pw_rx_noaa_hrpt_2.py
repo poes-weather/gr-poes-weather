@@ -4,7 +4,7 @@
 # Title: Enhanced NOAA HRPT Receiver
 # Author: POES Weather Ab Ltd & Martin Blaho
 # Description: Enhanced NOAA HRPT Receiver
-# Generated: Mon May 13 11:49:12 2013
+# Generated: Tue May 14 00:12:37 2013
 ##################################################
 
 from gnuradio import analog
@@ -29,7 +29,7 @@ import wx
 
 class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
-	def __init__(self, satellite='NOAA-XX', gain=35, freq=1698e6, sync_check=False, side="A:0", rate=2e6, frames_file=os.environ['HOME'] + '/data/noaa/frames/NOAA-XX.hrpt'):
+	def __init__(self, satellite='NOAA-XX', gain=35, freq=1698e6, side="A:0", rate=2e6, frames_file=os.environ['HOME'] + '/data/noaa/frames/NOAA-XX.hrpt', allow_n_bad_frames=5):
 		grc_wxgui.top_block_gui.__init__(self, title="Enhanced NOAA HRPT Receiver")
 		_icon_path = "/usr/share/icons/hicolor/32x32/apps/gnuradio-grc.png"
 		self.SetIcon(wx.Icon(_icon_path, wx.BITMAP_TYPE_ANY))
@@ -40,10 +40,10 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.satellite = satellite
 		self.gain = gain
 		self.freq = freq
-		self.sync_check = sync_check
 		self.side = side
 		self.rate = rate
 		self.frames_file = frames_file
+		self.allow_n_bad_frames = allow_n_bad_frames
 
 		##################################################
 		# Variables
@@ -62,8 +62,13 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		try: saved_clock_alpha = self._saved_clock_alpha_config.getfloat("satname", 'clock_alpha')
 		except: saved_clock_alpha = 0.001
 		self.saved_clock_alpha = saved_clock_alpha
-		self.sync_check_txt = sync_check_txt = sync_check
+		self.allow_n_bad_frames_tb = allow_n_bad_frames_tb = 5
 		self.side_text = side_text = side
+		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
+		self._saved_n_bad_frames_config.read(config_filename)
+		try: saved_n_bad_frames = self._saved_n_bad_frames_config.getint("satname", 'allow_n_bad_frames')
+		except: saved_n_bad_frames = allow_n_bad_frames_tb
+		self.saved_n_bad_frames = saved_n_bad_frames
 		self._saved_gain_config = ConfigParser.ConfigParser()
 		self._saved_gain_config.read(config_filename)
 		try: saved_gain = self._saved_gain_config.getfloat("satname", 'gain')
@@ -147,7 +152,7 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 			fft_rate=15,
 			average=True,
 			avg_alpha=0.4,
-			title="NOAA HRPT FFT Spectrum",
+			title="NOAA HRPT FFT Spectrum 2",
 			peak_hold=False,
 		)
 		self.displays.GetPage(0).Add(self.wxgui_fftsink2_0.win)
@@ -162,14 +167,6 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.uhd_usrp_source_0.set_samp_rate(samp_rate)
 		self.uhd_usrp_source_0.set_center_freq(freq, 0)
 		self.uhd_usrp_source_0.set_gain(gain_slider, 0)
-		self._sync_check_txt_static_text = forms.static_text(
-			parent=self.GetWin(),
-			value=self.sync_check_txt,
-			callback=self.set_sync_check_txt,
-			label="Continuous sync check",
-			converter=forms.str_converter(),
-		)
-		self.GridAdd(self._sync_check_txt_static_text, 0, 2, 1, 1)
 		self._side_text_static_text = forms.static_text(
 			parent=self.GetWin(),
 			value=self.side_text,
@@ -257,6 +254,14 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_short*1, frames_file)
 		self.blocks_file_sink_0.set_unbuffered(False)
 		self.analog_agc_xx_0 = analog.agc_cc(1e-5, 1.0, 1.0/32768.0, 1.0)
+		self._allow_n_bad_frames_tb_text_box = forms.text_box(
+			parent=self.GetWin(),
+			value=self.allow_n_bad_frames_tb,
+			callback=self.set_allow_n_bad_frames_tb,
+			label="Allow N bad frames before resync",
+			converter=forms.int_converter(),
+		)
+		self.GridAdd(self._allow_n_bad_frames_tb_text_box, 1, 2, 1, 1)
 
 		##################################################
 		# Connections
@@ -283,14 +288,8 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 
 	def set_gain(self, gain):
 		self.gain = gain
-		self.set_saved_gain(self.gain)
-		self._saved_gain_config = ConfigParser.ConfigParser()
-		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section("satname"):
-			self._saved_gain_config.add_section("satname")
-		self._saved_gain_config.set("satname", 'gain', str(self.gain))
-		self._saved_gain_config.write(open(self.config_filename, 'w'))
 		self.set_gain_slider(self.gain)
+		self.set_saved_gain(self.gain)
 
 	def get_freq(self):
 		return self.freq
@@ -299,13 +298,6 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.freq = freq
 		self.set_freq_tb(self.freq)
 		self.uhd_usrp_source_0.set_center_freq(self.freq, 0)
-
-	def get_sync_check(self):
-		return self.sync_check
-
-	def set_sync_check(self, sync_check):
-		self.sync_check = sync_check
-		self.set_sync_check_txt(self.sync_check)
 
 	def get_side(self):
 		return self.side
@@ -329,6 +321,12 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.frames_file = frames_file
 		self.set_frames_outfile_text(self.frames_file)
 		self.blocks_file_sink_0.open(self.frames_file)
+
+	def get_allow_n_bad_frames(self):
+		return self.allow_n_bad_frames
+
+	def set_allow_n_bad_frames(self, allow_n_bad_frames):
+		self.allow_n_bad_frames = allow_n_bad_frames
 
 	def get_sym_rate(self):
 		return self.sym_rate
@@ -359,18 +357,24 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 			self._saved_pll_alpha_config.add_section("satname")
 		self._saved_pll_alpha_config.set("satname", 'pll_alpha', str(self.pll_alpha))
 		self._saved_pll_alpha_config.write(open(self.config_filename, 'w'))
-		self._saved_gain_config = ConfigParser.ConfigParser()
-		self._saved_gain_config.read(self.config_filename)
-		if not self._saved_gain_config.has_section("satname"):
-			self._saved_gain_config.add_section("satname")
-		self._saved_gain_config.set("satname", 'gain', str(self.gain))
-		self._saved_gain_config.write(open(self.config_filename, 'w'))
 		self._saved_clock_alpha_config = ConfigParser.ConfigParser()
 		self._saved_clock_alpha_config.read(self.config_filename)
 		if not self._saved_clock_alpha_config.has_section("satname"):
 			self._saved_clock_alpha_config.add_section("satname")
 		self._saved_clock_alpha_config.set("satname", 'clock_alpha', str(self.clock_alpha))
 		self._saved_clock_alpha_config.write(open(self.config_filename, 'w'))
+		self._saved_gain_config = ConfigParser.ConfigParser()
+		self._saved_gain_config.read(self.config_filename)
+		if not self._saved_gain_config.has_section("satname"):
+			self._saved_gain_config.add_section("satname")
+		self._saved_gain_config.set("satname", 'gain', str(self.gain_slider))
+		self._saved_gain_config.write(open(self.config_filename, 'w'))
+		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
+		self._saved_n_bad_frames_config.read(self.config_filename)
+		if not self._saved_n_bad_frames_config.has_section("satname"):
+			self._saved_n_bad_frames_config.add_section("satname")
+		self._saved_n_bad_frames_config.set("satname", 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
+		self._saved_n_bad_frames_config.write(open(self.config_filename, 'w'))
 
 	def get_sps(self):
 		return self.sps
@@ -394,12 +398,19 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self.saved_clock_alpha = saved_clock_alpha
 		self.set_clock_alpha(self.saved_clock_alpha)
 
-	def get_sync_check_txt(self):
-		return self.sync_check_txt
+	def get_allow_n_bad_frames_tb(self):
+		return self.allow_n_bad_frames_tb
 
-	def set_sync_check_txt(self, sync_check_txt):
-		self.sync_check_txt = sync_check_txt
-		self._sync_check_txt_static_text.set_value(self.sync_check_txt)
+	def set_allow_n_bad_frames_tb(self, allow_n_bad_frames_tb):
+		self.allow_n_bad_frames_tb = allow_n_bad_frames_tb
+		self._allow_n_bad_frames_tb_text_box.set_value(self.allow_n_bad_frames_tb)
+		self.set_saved_n_bad_frames(self.allow_n_bad_frames_tb)
+		self._saved_n_bad_frames_config = ConfigParser.ConfigParser()
+		self._saved_n_bad_frames_config.read(self.config_filename)
+		if not self._saved_n_bad_frames_config.has_section("satname"):
+			self._saved_n_bad_frames_config.add_section("satname")
+		self._saved_n_bad_frames_config.set("satname", 'allow_n_bad_frames', str(self.allow_n_bad_frames_tb))
+		self._saved_n_bad_frames_config.write(open(self.config_filename, 'w'))
 
 	def get_side_text(self):
 		return self.side_text
@@ -407,6 +418,12 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 	def set_side_text(self, side_text):
 		self.side_text = side_text
 		self._side_text_static_text.set_value(self.side_text)
+
+	def get_saved_n_bad_frames(self):
+		return self.saved_n_bad_frames
+
+	def set_saved_n_bad_frames(self, saved_n_bad_frames):
+		self.saved_n_bad_frames = saved_n_bad_frames
 
 	def get_saved_gain(self):
 		return self.saved_gain
@@ -479,6 +496,12 @@ class pw_rx_noaa_hrpt_2(grc_wxgui.top_block_gui):
 		self._gain_slider_slider.set_value(self.gain_slider)
 		self._gain_slider_text_box.set_value(self.gain_slider)
 		self.uhd_usrp_source_0.set_gain(self.gain_slider, 0)
+		self._saved_gain_config = ConfigParser.ConfigParser()
+		self._saved_gain_config.read(self.config_filename)
+		if not self._saved_gain_config.has_section("satname"):
+			self._saved_gain_config.add_section("satname")
+		self._saved_gain_config.set("satname", 'gain', str(self.gain_slider))
+		self._saved_gain_config.write(open(self.config_filename, 'w'))
 
 	def get_freq_tb(self):
 		return self.freq_tb
@@ -525,15 +548,15 @@ if __name__ == '__main__':
 		help="Set Gain [default=%default]")
 	parser.add_option("-f", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(1698e6),
 		help="Set Frequency [default=%default]")
-	parser.add_option("-c", "--sync-check", dest="sync_check", type="intx", default=False,
-		help="Set Sync check [default=%default]")
 	parser.add_option("-R", "--side", dest="side", type="string", default="A:0",
 		help="Set Side [default=%default]")
 	parser.add_option("-r", "--rate", dest="rate", type="eng_float", default=eng_notation.num_to_str(2e6),
 		help="Set Sample rate [default=%default]")
 	parser.add_option("-o", "--frames-file", dest="frames_file", type="string", default=os.environ['HOME'] + '/data/noaa/frames/NOAA-XX.hrpt',
 		help="Set Frames output filename [default=%default]")
+	parser.add_option("-b", "--allow-n-bad-frames", dest="allow_n_bad_frames", type="intx", default=5,
+		help="Set Allow N bad frames before resync [default=%default]")
 	(options, args) = parser.parse_args()
-	tb = pw_rx_noaa_hrpt_2(satellite=options.satellite, gain=options.gain, freq=options.freq, sync_check=options.sync_check, side=options.side, rate=options.rate, frames_file=options.frames_file)
+	tb = pw_rx_noaa_hrpt_2(satellite=options.satellite, gain=options.gain, freq=options.freq, side=options.side, rate=options.rate, frames_file=options.frames_file, allow_n_bad_frames=options.allow_n_bad_frames)
 	tb.Run(True)
 

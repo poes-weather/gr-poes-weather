@@ -54,6 +54,7 @@ namespace gr {
         d_mid_bit = true;
         d_last_bit = 0;
         d_sync_marker_count = 0;
+        d_shifter = 0; 
 
         enter_idle();
     }

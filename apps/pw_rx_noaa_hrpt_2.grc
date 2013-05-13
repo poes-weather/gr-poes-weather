@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Mon May 13 11:48:24 2013</timestamp>
+  <timestamp>Tue May 14 00:12:35 2013</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -464,49 +464,6 @@
     <key>variable_config</key>
     <param>
       <key>id</key>
-      <value>saved_gain</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>gain</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>real</value>
-    </param>
-    <param>
-      <key>config_file</key>
-      <value>config_filename</value>
-    </param>
-    <param>
-      <key>section</key>
-      <value>satname</value>
-    </param>
-    <param>
-      <key>option</key>
-      <value>'gain'</value>
-    </param>
-    <param>
-      <key>writeback</key>
-      <value>gain</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(582, 519)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_config</key>
-    <param>
-      <key>id</key>
       <value>saved_clock_alpha</value>
     </param>
     <param>
@@ -930,41 +887,6 @@
     <param>
       <key>_coordinate</key>
       <value>(11, 167)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>id</key>
-      <value>sync_check</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Sync check</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value>c</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(832, 669)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1403,49 +1325,6 @@
     <param>
       <key>_coordinate</key>
       <value>(233, 670)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_static_text</key>
-    <param>
-      <key>id</key>
-      <value>sync_check_txt</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Continuous sync check</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>sync_check</value>
-    </param>
-    <param>
-      <key>converver</key>
-      <value>str_converter</value>
-    </param>
-    <param>
-      <key>formatter</key>
-      <value>None</value>
-    </param>
-    <param>
-      <key>grid_pos</key>
-      <value>0,2,1,1</value>
-    </param>
-    <param>
-      <key>notebook</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(579, 112)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2216,6 +2095,170 @@
     </param>
   </block>
   <block>
+    <key>variable_text_box</key>
+    <param>
+      <key>id</key>
+      <value>allow_n_bad_frames_tb</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Allow N bad frames before resync</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>5</value>
+    </param>
+    <param>
+      <key>converver</key>
+      <value>int_converter</value>
+    </param>
+    <param>
+      <key>formatter</key>
+      <value>None</value>
+    </param>
+    <param>
+      <key>grid_pos</key>
+      <value>1,2,1,1</value>
+    </param>
+    <param>
+      <key>notebook</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(582, 242)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>id</key>
+      <value>allow_n_bad_frames</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Allow N bad frames before resync</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>5</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>b</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(832, 669)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_config</key>
+    <param>
+      <key>id</key>
+      <value>saved_gain</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>gain</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>real</value>
+    </param>
+    <param>
+      <key>config_file</key>
+      <value>config_filename</value>
+    </param>
+    <param>
+      <key>section</key>
+      <value>satname</value>
+    </param>
+    <param>
+      <key>option</key>
+      <value>'gain'</value>
+    </param>
+    <param>
+      <key>writeback</key>
+      <value>gain_slider</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(582, 519)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_config</key>
+    <param>
+      <key>id</key>
+      <value>saved_n_bad_frames</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>allow_n_bad_frames_tb</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>int</value>
+    </param>
+    <param>
+      <key>config_file</key>
+      <value>config_filename</value>
+    </param>
+    <param>
+      <key>section</key>
+      <value>satname</value>
+    </param>
+    <param>
+      <key>option</key>
+      <value>'allow_n_bad_frames'</value>
+    </param>
+    <param>
+      <key>writeback</key>
+      <value>allow_n_bad_frames_tb</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(759, 520)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>wxgui_fftsink2</key>
     <param>
       <key>id</key>
@@ -2231,7 +2274,7 @@
     </param>
     <param>
       <key>title</key>
-      <value>NOAA HRPT FFT Spectrum</value>
+      <value>NOAA HRPT FFT Spectrum 2</value>
     </param>
     <param>
       <key>samp_rate</key>
